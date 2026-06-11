@@ -100,7 +100,7 @@ Return the complete IMPROVED version of the report.
 DRAFT_REPORT:
 {draft}"""
     
-    result = run_aubagent(
+    result = run_subagent(
         system_prompt = CRITIC_PROMPT,
         task= full_task,
         use_tools = False
