@@ -71,17 +71,36 @@ def research_agent(task: str) -> str:
     print("Research Agent done")
     return result
 
-def writer_agent(task: str, research: str) -> str:
-    """Write a structured report based on research findings."""
+def writer_agent(task: str, research: str, feedback: str = None) -> str:
+    """Write or revise a structured report based on research findings."""
     print("\n Writer agent starting...")
-    full_task = f"""Write a structured report on the following topic.
+
+    if feedback:
+        # Revision pass — include critic's feedback
+        full_task = f"""Revise the following report based on feedback.
 
 TOPIC: {task}
 
 RESEARCH_FINDINGS:
 {research}
 
-write a prefessional report with Introduction, Key Findings, and Conclusion."""
+CRITIC FEEDBACK TO ADDRESS:
+{feedback}
+
+Write the COMPLETE revised report addressing this feedback.
+Include Introduction, Key Findings, and Conclusion."""
+    
+    else:
+        # First pass — no feedback yet
+        full_task = f"""Write a structured report on the following topic.
+
+TOPIC: {task}
+
+RESEARCH FINDINGS:
+{research}
+
+Write a professional report with Introduction, Key Findings, and Conclusion."""
+    
     
     result = run_subagent(
         system_prompt = WRITER_PROMPT,
