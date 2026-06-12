@@ -19,7 +19,7 @@ def research_node(state: OrchestratorState) -> dict:
     """Run research agent on the task"""
     result = research_agent(state["task"])
     print(f"\n Research output preview: {result[:150]}...")
-    return {"research output": result}
+    return {"research_output": result}
 
 def writer_node(state: OrchestratorState) -> dict:
     "Run writer agent with task + research output."
