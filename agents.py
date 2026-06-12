@@ -92,18 +92,43 @@ write a prefessional report with Introduction, Key Findings, and Conclusion."""
     return result
 
 def critic_agent(draft: str) -> str:
-    """Review and improve the draft report."""
+    """Review the draft report. Returns verdict, feedback, and improved report."""
     print("\n Critic Agent starting...")
-    full_task = f"""Review and improve the following report.
-Return the complete IMPROVED version of the report.
+    full_task = f"""Review the following report.
+
     
 DRAFT_REPORT:
 {draft}"""
     
-    result = run_subagent(
+    raw_result = run_subagent(
         system_prompt = CRITIC_PROMPT,
-        task= full_task,
+        task = full_task,
         use_tools = False
     )
+    
+    # ── Parse the structured output ─────────────────────────
+    verdict = "needs_revision" # safe default
+    feedback = ""
+    report = raw_result # fallback — whole thing if parsing fails
+
+    try:
+        if "VERDICT:" in raw_result and "REPORT:" in raw_result:
+            verdict_part = raw_result.split("VERDICT:")[1].split("FEEDBACK:")[0].strip()
+            feedback_part = raw_result.split("FEEDBACK:")[1].split("REPORT:")[0].strip()
+            report_part = raw_result.split("REPORT:")[1].strip()
+
+            verdict = verdict_part.lower()
+            feedback = feedback_part
+            report = report_part
+    except Exception as e:
+        print(f"Parsing failed, using raw output: {e}")
+    
+    
+    print(f" Verdict: {verdict}")
     print(" Critic Agent done.")
-    return result
+    
+    return {
+        "verdict": verdict,
+        "feedback": feedback,
+        "report": report
+    }
