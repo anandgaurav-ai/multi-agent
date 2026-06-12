@@ -6,14 +6,19 @@ from config import DB_PATH, OPENAI_API_KEY
 from state import OrchestratorState
 from agents import research_agent, writer_agent, critic_agent
 
+MAX_REVISIONS = 2
+
 # ── Nodes ──────────────────────────────────────────────────────
 
 def orchestrator_node(state: OrchestratorState) -> dict:
-    """Extract task from last Human message and store in state."""
+    """Extract task from last Human message and initialise state."""
     last_message = state["messages"][-1]
     task = last_message.content
     print(f"\n Orchestrator: task received - '{task[:80]}...'")
-    return {"task": task}
+    return {
+        "task": task,
+        "revision_count": 0 # Initialise counter
+        }
 
 def research_node(state: OrchestratorState) -> dict:
     """Run research agent on the task"""
@@ -22,19 +27,47 @@ def research_node(state: OrchestratorState) -> dict:
     return {"research_output": result}
 
 def writer_node(state: OrchestratorState) -> dict:
-    "Run writer agent with task + research output."
+    """Run writer agent - first pass or revision based on feedback."""
+    feedback = state.get("feedback", "") # empty on first pass
+
     result = writer_agent(
         task = state["task"],
-        research = state["research_output"]
+        research = state["research_output"],
+        feedback = feedback if feedback else None
     )
     print(f"\n Draft preview: {result[:150]}...")
     return {"draft_report": result}
 
 def critic_node(state: OrchestratorState) -> dict:
-    "Run critic agent on the draft report."
+    """Run critic agent - Returns verdict, feedback, and report."""
     result = critic_agent(state["draft_report"])
-    print(f"Final report preview: {result[:150]}...")
-    return {"final_report": result}
+
+    new_revision_count = state["revision_count"]
+    if result["verdict"] == "needs_revision":
+        new_revision_count +=1
+
+    print(f"Final report preview: {result['report'][:150]}...")
+    return {
+        "final_report": result["report"],
+        "verdict": result["verdict"],
+        "feedback": result["feedback"],
+        "revision_count": new_revision_count
+        }
+
+# ── Conditional routing ─────────────────────────────────────────
+
+def should_revise(state: OrchestratorState) -> str:
+    """Decide whether to loop back to writer or finish."""
+    if state["verdict"] == "approved":
+        print("\n Verdict: APPROVED - Pipeline complete")
+        return "end"
+    
+    if state["revision_count"] >= MAX_REVISIONS:
+        print(f"\n Max revisions ({MAX_REVISIONS}) reached - accepting current report")
+        return "end"
+    
+    print(f"\n Verdict: NEED_REVISION (revision {state['revision_count']}/{MAX_REVISIONS}) - back to writer")
+    return "revise"
 
 
 # ── Graph builder ──────────────────────────────────────────────
@@ -54,7 +87,16 @@ def build_graph(checkpointer = None):
     builder.add_edge("orchestrator", "researcher")
     builder.add_edge("researcher", "writer")
     builder.add_edge("writer", "critic")
-    builder.add_edge("critic", END)
+    
+    # Conditional edge — the feedback loop
+    builder.add_conditional_edges(
+        "critic",
+        should_revise,
+        {
+            "revise": "writer", # loop back
+            "end": END          # Finish
+        }
+    )
 
     return builder.compile(checkpointer = checkpointer)
 
