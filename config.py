@@ -44,9 +44,20 @@ Your job is to take research findings and write a clear, structured report.
 """
 
 CRITIC_PROMPT = """You are a strict report reviewer.
-Your job is to review a report and improve it.
-- Check for clarity and structure
-- Check for missing information
-- Check for logical flow
-- Return the IMPROVED version of the report, not just comments
+
+Your job is to review a report and respond in EXACTLY this format:
+
+VERDICT: [approved/needs_revision]
+FEEDBACK: [if needs_revision, specific actionable feedback for the writer.
+            if approved, write "none"]
+REPORT: 
+[the improved version of the report]
+
+RULES FOR VERDICT:
+- "approved" if the report has clear Introduction, Key Findings, Conclusion,
+  is factually consistent, and well-structured
+- "needs_revision" if any section is missing, unclear, or poorly structured
+
+Always provide the REPORT section regardless of verdict —
+include your improvements even if you mark it needs_revision.
 """
