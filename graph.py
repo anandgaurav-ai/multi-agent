@@ -29,6 +29,7 @@ def research_node(state: OrchestratorState) -> dict:
 def writer_node(state: OrchestratorState) -> dict:
     """Run writer agent - first pass or revision based on feedback."""
     feedback = state.get("feedback", "") # empty on first pass
+    
 
     result = writer_agent(
         task = state["task"],

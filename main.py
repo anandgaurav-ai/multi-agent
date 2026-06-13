@@ -1,5 +1,6 @@
 import os
 import sys
+import uuid
 
 from langchain_core.messages import HumanMessage
 from graph import graph
@@ -26,5 +27,5 @@ def run_report_pipeline(topic: str, thread_id: str = "default"):
 if __name__ == "__main__":
     run_report_pipeline(
         "Write a report on the key features of LangGraph",
-        thread_id="report_001"
+        thread_id=f"report_{uuid.uuid4().hex[:8]}"
     )
