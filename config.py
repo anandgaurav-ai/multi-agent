@@ -3,6 +3,13 @@ import os
 
 load_dotenv()
 
+# ── LangSmith tracing ──────────────────────────────────────────
+# These are read automatically by LangChain from environment,
+# but we verify they're loaded here for clarity
+LANGSMITH_TRACING = os.getenv("LANGSMITH_TRACING")
+LANGSMITH_API_KEY = os.getenv("LANGSMITH_API_KEY")
+LANGSMITH_PROJECT = os.getenv("LANGSMITH_PROJECT")
+
 # ── API keys ───────────────────────────────────────────────────
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
