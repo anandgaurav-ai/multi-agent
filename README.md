@@ -21,9 +21,9 @@ A production-style multi-agent system that researches, writes, and reviews repor
 LangGraph · LangChain · OpenAI GPT-4o · SQLite · DuckDuckGo · LangSmith
 
 ## Setup
-pip install -r requirements.txt
-cp .env.example .env  # add your API keys
-python main.py
+- pip install -r requirements.txt
+- cp .env.example .env  # add your API keys
+- python main.py
 
 ## Evaluation
 python eval.py
@@ -37,10 +37,10 @@ Runs 3 test cases with 7 checks each (21 total):
 **LLM-as-judge:** GPT-4o scores quality 1-5
 
 ## Project Structure
-config.py   — API keys, constants, agent prompts
-state.py    — OrchestratorState definition
-tools.py    — web_search, calculator
-agents.py   — research, writer, critic subagents
-graph.py    — orchestrator graph with feedback loop
-main.py     — entry point
-eval.py     — evaluation harness
+- config.py   — API keys, constants, agent prompts
+- state.py    — OrchestratorState definition
+- tools.py    — web_search, calculator
+- agents.py   — research, writer, critic subagents
+- graph.py    — orchestrator graph with feedback loop
+- main.py     — entry point
+- eval.py     — evaluation harness
